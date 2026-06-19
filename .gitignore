@@ -1,0 +1,40 @@
+# Python environments and caches
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local environment and editor files
+.env
+.env.*
+.idea/
+.vscode/
+*.swp
+*~
+
+# Experiment outputs
+artifacts/
+checkpoints/
+results/
+*.log
+
+# Model/download caches
+.cache/
+huggingface/
+
+# Keep only archive datasets under data
+data/**
+!data/
+!data/**/
+!data/**/*.7z
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
