@@ -60,6 +60,14 @@ Dev mode chay nho truoc:
 python src/run_experiment.py --smell all --model fusion --dev
 ~~~
 
+Chay ca 3 model modes trong mot command:
+
+~~~bash
+python src/run_experiment.py --smell all --model all --dev
+~~~
+
+Artifact data/token/AST duoc prepare mot lan moi smell, sau do reuse cho unixcoder, ast_gat va fusion.
+
 `--dev` request 200 positive + 800 negative cho moi smell. Full mode request 2000 positive + 8000 negative. Sau khi doc index, code clamp theo so mau thuc co va ghi ro vao `sample_audit.csv`.
 
 `--smell all` la mac dinh va se chay lan luot 4 binary tasks:
@@ -194,7 +202,7 @@ Focal Loss tinh CE khong weight de lay `pt`, sau do moi nhan `alpha_t`, dung hon
 member,task_name,dataset_name,language,smells,input_type,split_protocol,seed,train_size,validation_size,test_size,model,checkpoint_selection,hardware,runtime,accuracy,precision,recall,f1,mcc,roc_auc,notes
 ~~~
 
-Mac dinh `member=Giang`. Khi chay `--smell all`, file result append 4 dong, moi dong la metric cua mot target smell. Cot `smells` ghi du danh sach 4 smells, `notes` ghi `target_smell=...`.
+Mac dinh `member=Giang`. Khi chay `--smell all`, mot model append 4 dong, moi dong la metric cua mot target smell. Cot `smells` ghi target smell cua chinh dong do. `--smell all --model all` append 12 dong: 4 smells x 3 models.
 
 Neu chay tren Kaggle:
 

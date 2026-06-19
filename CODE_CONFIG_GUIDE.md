@@ -99,6 +99,7 @@ Khong thay doi ba ratio neu report bat buoc 70/15/15.
 | --smell all | Chay ca 4 smells. |
 | --smell ComplexMethod | Debug mot smell. |
 | --model fusion | Chon model mode. |
+| --model all | Chay lan luot unixcoder, ast_gat va fusion, reuse cung artifact. |
 | --member Giang | Gia tri cot member. |
 | --hardware "Jetson AGX Orin 64GB" | Ghi hardware vao result CSV. |
 | --dev | 200 positive + 800 negative moi smell. |
@@ -193,5 +194,4 @@ checkpoints/java/<Smell>/<model>_best.pt
 results/results.csv
 ~~~
 
-Khi --smell all, mot model run tao 4 dong result, moi dong cho mot target smell.
-
+Khi --smell all, mot model run tao 4 dong result. Khi them --model all, run tao 12 dong: 4 target smells x 3 models. Cot smells luon la target smell cua dong do.

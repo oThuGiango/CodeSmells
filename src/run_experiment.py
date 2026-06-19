@@ -51,10 +51,11 @@ DATA_ROOT = PROJECT_ROOT / "data"
 
 LANGUAGE = "java"
 SMELL = "all"
-MODEL_NAME = "fusion"  # unixcoder | ast_gat | fusion
+MODEL_NAME = "fusion"  # unixcoder | ast_gat | fusion | all
 MEMBER_NAME = "Giang"
 TASK_NAME = "Code smell detection via fine-tuned pretrained models"
 ALL_SMELLS = ["ComplexMethod", "ComplexConditional", "FeatureEnvy", "MultifacetedAbstraction"]
+ALL_MODELS = ["unixcoder", "ast_gat", "fusion"]
 MODEL_DISPLAY_NAMES = {
     "unixcoder": "UniXCoder",
     "ast_gat": "AST-GAT",
@@ -185,7 +186,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--language", default=LANGUAGE)
     parser.add_argument("--smell", default=SMELL, help="Use 'all' to run all four smells in one command.")
-    parser.add_argument("--model", choices=["unixcoder", "ast_gat", "fusion"], default=MODEL_NAME)
+    parser.add_argument("--model", choices=["unixcoder", "ast_gat", "fusion", "all"], default=MODEL_NAME)
     parser.add_argument("--member", default=MEMBER_NAME)
     parser.add_argument("--hardware", default=None, help="Example: 'Kaggle T4 x2'. Defaults to detected hardware.")
     parser.add_argument("--dev", action="store_true", help="Demo mode: 200 positive + 800 negative per smell.")
@@ -209,8 +210,10 @@ def resolve_smells(smell_arg: str) -> list[str]:
     return [smell_arg]
 
 
-def smell_label(smells: list[str]) -> str:
-    return "; ".join(smells)
+def resolve_models(model_arg: str) -> list[str]:
+    if model_arg.lower() == "all":
+        return ALL_MODELS
+    return [model_arg]
 
 
 def set_seed(seed: int) -> None:
@@ -1207,14 +1210,13 @@ def write_result(args, paths: Paths, split_df: pd.DataFrame, metrics: dict[str, 
     )
     detected_hardware = torch.cuda.get_device_name(0) if torch.cuda.is_available() else "CPU"
     hardware = args.hardware or os.environ.get("HARDWARE") or detected_hardware
-    smells = getattr(args, "smells_label", args.smell)
     target_smell = getattr(args, "target_smell", args.smell)
     row = {
         "member": args.member,
         "task_name": TASK_NAME,
         "dataset_name": "DeepLearningSmells",
         "language": args.language.capitalize(),
-        "smells": smells,
+        "smells": target_smell,
         "input_type": "raw source code",
         "split_protocol": split_protocol,
         "seed": SEED,
@@ -1324,27 +1326,50 @@ def main() -> None:
     args = parse_args()
     set_seed(SEED)
     smells = resolve_smells(args.smell)
-    smells_label_value = smell_label(smells)
+    models = resolve_models(args.model)
 
     for current_smell in smells:
-        run_args = argparse.Namespace(**vars(args))
-        run_args.smell = current_smell
-        run_args.target_smell = current_smell
-        run_args.smells_label = smells_label_value
+        prepare_args = argparse.Namespace(**vars(args))
+        prepare_args.smell = current_smell
+        prepare_args.target_smell = current_smell
+        prepare_args.model = models[0]
+        prepare_log_name = "prepare" if args.model == "all" else models[0]
+        prepare_paths = get_paths(prepare_args.language, current_smell, prepare_log_name)
+        prepare_logger = RunLogger(prepare_paths.log_file)
 
-        print(f"\n===== {run_args.language}/{current_smell}/{run_args.model} =====")
-        paths = get_paths(run_args.language, current_smell, run_args.model)
-        logger = RunLogger(paths.log_file)
-        logger.info(f"Run start language={run_args.language} smell={current_smell} model={run_args.model} dev={run_args.dev}")
+        print(f"\n===== {prepare_args.language}/{current_smell}/prepare =====")
+        prepare_logger.info(
+            f"Prepare start language={prepare_args.language} smell={current_smell} "
+            f"models={models} dev={prepare_args.dev}"
+        )
         try:
-            split_df = prepare_artifacts(run_args, paths, logger)
-            logger.info(f"Artifacts ready in: {paths.artifact_dir}")
-            if not run_args.prepare_only:
-                train_eval_test(run_args, paths, split_df, logger)
-            logger.info("Run finished successfully.")
+            split_df = prepare_artifacts(prepare_args, prepare_paths, prepare_logger)
+            prepare_logger.info(f"Artifacts ready in: {prepare_paths.artifact_dir}")
         except Exception:
-            logger.exception("Run failed.")
+            prepare_logger.exception("Prepare failed.")
             raise
+
+        if args.prepare_only:
+            prepare_logger.info("Prepare-only run finished successfully.")
+            continue
+
+        for current_model in models:
+            run_args = argparse.Namespace(**vars(prepare_args))
+            run_args.model = current_model
+            paths = get_paths(run_args.language, current_smell, current_model)
+            logger = RunLogger(paths.log_file)
+            print(f"\n===== {run_args.language}/{current_smell}/{current_model} =====")
+            logger.info(
+                f"Model run start language={run_args.language} smell={current_smell} "
+                f"model={current_model} dev={run_args.dev}"
+            )
+            try:
+                set_seed(SEED)
+                train_eval_test(run_args, paths, split_df, logger)
+                logger.info("Model run finished successfully.")
+            except Exception:
+                logger.exception("Model run failed.")
+                raise
 
 
 if __name__ == "__main__":
