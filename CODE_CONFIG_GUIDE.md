@@ -82,6 +82,7 @@ Sua cac hang so o dau src/run_experiment.py neu muon thay default:
 | LEARNING_RATE | 2e-5 | AdamW learning rate. |
 | WEIGHT_DECAY | 0.01 | AdamW weight decay. |
 | FOCAL_GAMMA | 2.0 | Focal Loss gamma. |
+| WARMUP_RATIO | 0.10 | Warmup fraction cho UniXCoder va Fusion. |
 | NUM_WORKERS | 0 | DataLoader workers. |
 | DEVICE | auto | CUDA neu available, neu khong thi CPU. |
 | GAT_HIDDEN_DIM | 128 | Hidden size moi GAT head. |
@@ -184,6 +185,9 @@ artifacts/java/<Smell>/split_summary.csv
 artifacts/java/<Smell>/source_extract_audit.csv
 artifacts/java/<Smell>/token_stats.csv
 artifacts/java/<Smell>/ast_parse_result.csv
+artifacts/java/<Smell>/token_cache_ids.txt
+artifacts/java/<Smell>/ast_cache_ids.txt
+artifacts/java/<Smell>/prepare_run.log
 artifacts/java/<Smell>/<model>_run.log
 ~~~
 

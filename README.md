@@ -23,13 +23,27 @@ artifacts/
     sampled_sources.jsonl
     source_cache_ids.txt
     token_cache.pt
+    token_cache_ids.txt
     token_stats.csv
     ast_parse_result.csv
     ast_graphs.pt
+    ast_cache_ids.txt
+    prepare_run.log
     <model>_run.log
 results/results.csv
 checkpoints/java/<Smell>/<model>_best.pt
 ~~~
+
+## Jetson AGX Orin
+
+May muc tieu:
+
+- Jetson AGX Orin Developer Kit, `aarch64`
+- Jetson Linux R36.5.0, CUDA 12.6
+- 64 GB unified RAM, 12 CPU cores
+- Khoang 29 GB disk trong
+
+Phan cung du de train UniXCoder, AST-GAT va Fusion cua project. Nen chay `--dev` truoc, theo doi `tegrastats`, va bat dau Fusion voi `--batch-size 4` neu muon de du memory headroom. Full run 4 smells se cham hon GPU desktop/datacenter; 29 GB disk du nhung can theo doi cache model, artifact va checkpoint.
 
 ## Tao venv
 
@@ -43,7 +57,6 @@ cd ~/DeepLearningSmells
 python3.10 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip setuptools wheel
-sudo apt install p7zip-full
 python -m pip install -r requirements.txt
 ~~~
 
@@ -166,6 +179,8 @@ artifacts/java/<Smell>/token_stats.csv
 
 File nay cho biet sample dai nhat, `cached_length`, va `is_truncated`.
 
+Rieng FeatureEnvy, token input duoc prepend ten containing class parse tu filename. Source cache van giu code nguyen ban; `token_stats.csv` co `class_name` va `class_context_added` de audit. Token cache metadata tu dong rebuild cache khi schema/context thay doi.
+
 ## AST graph
 
 Node feature gom:
@@ -185,6 +200,7 @@ Edge type gom:
 - previous sibling
 - same identifier
 - control-flow hint
+- member receiver cho method invocation va field access
 
 `same_identifier` bo qua ten ngan hon 3 ky tu va chi dung toi da 10 occurrence moi ten de gioi han edge/memory. Day chua phai CFG/DFG compiler-grade, nhung manh hon AST parent-child thuan va phu hop baseline.
 
@@ -193,6 +209,8 @@ Edge type gom:
 Moi epoch tune threshold tren validation probabilities theo MCC truoc, F1 sau. Neu tie MCC/F1, threshold gan 0.5 hon duoc chon. Checkpoint luu threshold tot nhat.
 
 Focal Loss tinh CE khong weight de lay `pt`, sau do moi nhan `alpha_t`, dung hon cong thuc focal loss chuan.
+
+UniXCoder va Fusion dung linear learning-rate schedule voi warmup 10% optimizer steps. AST-GAT giu learning rate phang.
 
 ## CSV result
 

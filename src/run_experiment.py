@@ -4,6 +4,7 @@ import argparse
 import csv
 import hashlib
 import json
+import math
 import os
 import random
 import re
@@ -35,7 +36,7 @@ from torch.optim import AdamW
 from torch.utils.data import DataLoader, Dataset, WeightedRandomSampler
 from torch_geometric.data import Batch, Data
 from tqdm import tqdm
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer, get_linear_schedule_with_warmup
 
 from model_ast_gat import ASTGATClassifier
 from model_fusion import FusionClassifier
@@ -82,6 +83,7 @@ PATIENCE = 5
 LEARNING_RATE = 2e-5
 WEIGHT_DECAY = 0.01
 FOCAL_GAMMA = 2.0
+WARMUP_RATIO = 0.10
 NUM_WORKERS = 0
 DEVICE = "auto"
 
@@ -106,9 +108,12 @@ EDGE_TYPES = {
     "prev_sibling": 3,
     "same_identifier": 4,
     "control_flow_hint": 5,
+    "member_receiver": 6,
 }
 EDGE_FEATURE_DIM = len(EDGE_TYPES)
-INDEX_VERSION = 3
+INDEX_VERSION = 4
+TOKEN_SCHEMA_VERSION = 2
+AST_SCHEMA_VERSION = 2
 MIN_SAME_IDENTIFIER_LENGTH = 3
 MAX_SAME_IDENTIFIER_OCCURRENCES = 10
 
@@ -124,9 +129,13 @@ class Paths:
     sampled_sources: Path
     source_cache_ids: Path
     token_cache: Path
+    token_cache_ids: Path
+    token_cache_meta: Path
     token_stats: Path
     ast_parse_result: Path
     ast_graphs: Path
+    ast_cache_ids: Path
+    ast_cache_meta: Path
     sample_audit: Path
     split_summary: Path
     source_extract_audit: Path
@@ -251,9 +260,13 @@ def get_paths(language: str, smell: str, model_name: str) -> Paths:
         sampled_sources=artifact_dir / "sampled_sources.jsonl",
         source_cache_ids=artifact_dir / "source_cache_ids.txt",
         token_cache=artifact_dir / "token_cache.pt",
+        token_cache_ids=artifact_dir / "token_cache_ids.txt",
+        token_cache_meta=artifact_dir / "token_cache_meta.json",
         token_stats=artifact_dir / "token_stats.csv",
         ast_parse_result=artifact_dir / "ast_parse_result.csv",
         ast_graphs=artifact_dir / "ast_graphs.pt",
+        ast_cache_ids=artifact_dir / "ast_cache_ids.txt",
+        ast_cache_meta=artifact_dir / "ast_cache_meta.json",
         sample_audit=artifact_dir / "sample_audit.csv",
         split_summary=artifact_dir / "split_summary.csv",
         source_extract_audit=artifact_dir / "source_extract_audit.csv",
@@ -290,6 +303,20 @@ def infer_repo(member_name: str) -> str:
         if match:
             return match.group(1)
     return "unknown_repo"
+
+
+def infer_class_name(member_name: str) -> tuple[str, str]:
+    stem = Path(member_name.replace("\\", "/")).stem
+    parts = stem.split("_")
+    pattern = re.compile(
+        r"^(?P<class_name>[A-Z$][A-Za-z0-9_$]*)(?P<ordinal>\d+)(?P<method_name>[A-Za-z_$][A-Za-z0-9_$]*)$"
+    )
+    for start in range(1, len(parts)):
+        candidate = "_".join(parts[start:])
+        match = pattern.match(candidate)
+        if match:
+            return match.group("class_name"), "parsed"
+    return "unknown_class", "unparsed"
 
 
 def find_7z_cli() -> str | None:
@@ -377,6 +404,7 @@ def build_dataset_index(language: str, smell: str, paths: Paths, force: bool, lo
             except ValueError:
                 continue
             sample_id = hashlib.sha1(f"{archive_path}|{member_name}".encode("utf-8")).hexdigest()
+            class_name, class_parse_status = infer_class_name(member_name)
             rows.append(
                 {
                     "sample_id": sample_id,
@@ -385,6 +413,8 @@ def build_dataset_index(language: str, smell: str, paths: Paths, force: bool, lo
                     "repo": infer_repo(member_name),
                     "label": label,
                     "index_version": INDEX_VERSION,
+                    "class_name": class_name,
+                    "class_parse_status": class_parse_status,
                 }
             )
 
@@ -397,7 +427,11 @@ def build_dataset_index(language: str, smell: str, paths: Paths, force: bool, lo
     df.to_csv(paths.dataset_index, index=False)
     counts = df["label"].value_counts().to_dict()
     repo_count = df["repo"].nunique()
-    logger.info(f"Wrote dataset_index rows={len(df)} positives={counts.get(1, 0)} negatives={counts.get(0, 0)} repos={repo_count}")
+    class_status = df["class_parse_status"].value_counts().to_dict()
+    logger.info(
+        f"Wrote dataset_index rows={len(df)} positives={counts.get(1, 0)} "
+        f"negatives={counts.get(0, 0)} repos={repo_count} class_parse={class_status}"
+    )
     return df
 
 
@@ -450,6 +484,7 @@ def write_sample_audit(
             "validation_ratio": VAL_RATIO,
             "test_ratio": TEST_RATIO,
             "index_rows": index_rows,
+            "index_version": INDEX_VERSION,
         }
     ]
     pd.DataFrame(rows).to_csv(paths.sample_audit, index=False)
@@ -508,6 +543,7 @@ def sample_cache_matches(
         "validation_ratio",
         "test_ratio",
         "index_rows",
+        "index_version",
     }
     if not required.issubset(audit.columns):
         return False
@@ -518,10 +554,12 @@ def sample_cache_matches(
         and int(row["selected_positive"]) == cached_counts.get(1, 0)
         and int(row["selected_negative"]) == cached_counts.get(0, 0)
         and int(row["seed"]) == SEED
-        and float(row["train_ratio"]) == TRAIN_RATIO
-        and float(row["validation_ratio"]) == VAL_RATIO
-        and float(row["test_ratio"]) == TEST_RATIO
+        and math.isclose(float(row["train_ratio"]), TRAIN_RATIO, rel_tol=0.0, abs_tol=1e-9)
+        and math.isclose(float(row["validation_ratio"]), VAL_RATIO, rel_tol=0.0, abs_tol=1e-9)
+        and math.isclose(float(row["test_ratio"]), TEST_RATIO, rel_tol=0.0, abs_tol=1e-9)
         and int(row["index_rows"]) == len(index_df)
+        and int(row["index_version"]) == INDEX_VERSION
+        and "class_name" in cached.columns
         and set(cached["sample_id"].astype(str)).issubset(set(index_df["sample_id"].astype(str)))
     )
 
@@ -705,6 +743,41 @@ def cached_source_ids(source_path: Path, ids_path: Path) -> set[str]:
     return ids
 
 
+def write_cache_ids(ids_path: Path, ids: set[str]) -> None:
+    ids_path.write_text("\n".join(sorted(ids)) + "\n", encoding="utf-8")
+
+
+def cache_metadata_matches(meta_path: Path, expected: dict[str, object]) -> bool:
+    if not meta_path.exists():
+        return False
+    try:
+        return json.loads(meta_path.read_text(encoding="utf-8")) == expected
+    except (OSError, json.JSONDecodeError):
+        return False
+
+
+def write_cache_metadata(meta_path: Path, metadata: dict[str, object]) -> None:
+    meta_path.write_text(json.dumps(metadata, indent=2, sort_keys=True), encoding="utf-8")
+
+
+def tensor_cache_ids_match(
+    cache_path: Path,
+    ids_path: Path,
+    expected_ids: set[str],
+    logger: RunLogger,
+) -> bool:
+    if ids_path.exists() and ids_path.stat().st_mtime >= cache_path.stat().st_mtime:
+        cached_ids = {line.strip() for line in ids_path.read_text(encoding="utf-8").splitlines() if line.strip()}
+        return cached_ids == expected_ids
+
+    logger.info(f"Create missing cache ID sidecar once: {ids_path}")
+    cached = load_trusted_artifact(cache_path, map_location="cpu")
+    cached_ids = set(map(str, cached.keys()))
+    write_cache_ids(ids_path, cached_ids)
+    del cached
+    return cached_ids == expected_ids
+
+
 def cache_sampled_sources(split_df: pd.DataFrame, paths: Paths, force: bool, logger: RunLogger) -> set[str]:
     expected_ids = set(split_df["sample_id"].astype(str))
     if paths.sampled_sources.exists() and not force:
@@ -763,7 +836,7 @@ def cache_sampled_sources(split_df: pd.DataFrame, paths: Paths, force: bool, log
                         }
                     )
     pd.DataFrame(audit_rows).to_csv(paths.source_extract_audit, index=False)
-    paths.source_cache_ids.write_text("\n".join(sorted(valid_ids)) + "\n", encoding="utf-8")
+    write_cache_ids(paths.source_cache_ids, valid_ids)
     logger.info(
         f"Wrote sampled source cache valid={len(valid_ids)} missing={len(expected_ids - valid_ids)} "
         f"audit={paths.source_extract_audit}"
@@ -823,24 +896,49 @@ def load_source_cache(paths: Paths) -> dict[str, str]:
     return source_by_id
 
 
-def cache_tokenization(split_df: pd.DataFrame, paths: Paths, tokenizer, force: bool, logger: RunLogger) -> None:
+def token_cache_metadata(smell: str) -> dict[str, object]:
+    return {
+        "schema_version": TOKEN_SCHEMA_VERSION,
+        "tokenizer": UNIXCODER_NAME,
+        "max_token_length": MAX_TOKEN_LENGTH,
+        "feature_envy_class_context": smell == "FeatureEnvy",
+    }
+
+
+def cache_tokenization(
+    split_df: pd.DataFrame,
+    paths: Paths,
+    tokenizer,
+    smell: str,
+    force: bool,
+    logger: RunLogger,
+) -> None:
+    metadata = token_cache_metadata(smell)
     if paths.token_cache.exists() and paths.token_stats.exists() and not force:
-        cached_tokens = load_trusted_artifact(paths.token_cache, map_location="cpu")
         expected_ids = set(split_df["sample_id"].astype(str))
-        if set(map(str, cached_tokens.keys())) == expected_ids:
+        if cache_metadata_matches(paths.token_cache_meta, metadata) and tensor_cache_ids_match(
+            paths.token_cache,
+            paths.token_cache_ids,
+            expected_ids,
+            logger,
+        ):
             logger.info(f"Reuse token cache/stats: {paths.token_cache}, {paths.token_stats}")
             return
-        logger.info("Token cache IDs do not match current split; rebuilding token cache/stats.")
+        logger.info("Token cache schema or IDs changed; rebuilding token cache/stats.")
     logger.info("Start tokenization cache and token length audit.")
     source_by_id = load_source_cache(paths)
     token_by_id = {}
     stats_rows = []
     for row in tqdm(split_df.to_dict("records"), desc="tokenize cache"):
         sample_id = row["sample_id"]
-        full_tokens = tokenizer(source_by_id[sample_id], truncation=False, padding=False, return_tensors=None)
+        code = source_by_id[sample_id]
+        class_name = str(row.get("class_name", "unknown_class"))
+        add_class_context = smell == "FeatureEnvy" and class_name != "unknown_class"
+        model_input = f"// containing_class: {class_name}\n{code}" if add_class_context else code
+        full_tokens = tokenizer(model_input, truncation=False, padding=False, return_tensors=None)
         token_length = len(full_tokens["input_ids"])
         cached_tokens = tokenizer(
-            source_by_id[sample_id],
+            model_input,
             truncation=True,
             max_length=MAX_TOKEN_LENGTH,
             padding=False,
@@ -856,12 +954,16 @@ def cache_tokenization(split_df: pd.DataFrame, paths: Paths, tokenizer, force: b
                 "split": row["split"],
                 "label": row["label"],
                 "member_name": row["member_name"],
+                "class_name": class_name,
+                "class_context_added": add_class_context,
                 "token_length": token_length,
                 "cached_length": len(cached_tokens["input_ids"]),
                 "is_truncated": token_length > MAX_TOKEN_LENGTH,
             }
         )
     torch.save(token_by_id, paths.token_cache)
+    write_cache_ids(paths.token_cache_ids, set(map(str, token_by_id.keys())))
+    write_cache_metadata(paths.token_cache_meta, metadata)
     pd.DataFrame(stats_rows).sort_values("token_length", ascending=False).to_csv(paths.token_stats, index=False)
     stats_df = pd.DataFrame(stats_rows)
     logger.info(
@@ -921,6 +1023,11 @@ def code_to_graph(code: str, parser, language: str) -> tuple[Data, str]:
     node_types = []
     node_texts = []
     control_nodes = []
+    node_index_by_key = {}
+    pending_receiver_edges = []
+
+    def node_key(node) -> tuple[int, int, str]:
+        return (int(node.start_byte), int(node.end_byte), str(node.type))
 
     def add_edge(src: int, dst: int, edge_type: str) -> None:
         edges.append((src, dst))
@@ -931,6 +1038,7 @@ def code_to_graph(code: str, parser, language: str) -> tuple[Data, str]:
     while stack and len(features) < MAX_AST_NODES:
         node, parent_idx, depth, sibling_index = stack.pop()
         current_idx = len(features)
+        node_index_by_key[node_key(node)] = current_idx
         features.append(node_feature(node, depth, sibling_index))
         node_types.append(node.type)
         node_texts.append(node.text.decode("utf-8", errors="ignore") if node.type == "identifier" else "")
@@ -944,6 +1052,10 @@ def code_to_graph(code: str, parser, language: str) -> tuple[Data, str]:
             last_child_by_parent[parent_idx] = current_idx
         if node.type in {"if_statement", "for_statement", "enhanced_for_statement", "while_statement", "do_statement", "switch_statement"}:
             control_nodes.append(current_idx)
+        if node.type in {"method_invocation", "field_access"}:
+            receiver = node.child_by_field_name("object")
+            if receiver is not None:
+                pending_receiver_edges.append((node_key(receiver), current_idx))
 
         children = list(node.children)
         for child_offset in range(len(children) - 1, -1, -1):
@@ -952,6 +1064,12 @@ def code_to_graph(code: str, parser, language: str) -> tuple[Data, str]:
     if not features:
         fake = type("FakeNode", (), {"type": "program", "children": [], "is_named": True})()
         features.append(node_feature(fake, 0, 0))
+
+    for receiver_key, access_idx in pending_receiver_edges:
+        receiver_idx = node_index_by_key.get(receiver_key)
+        if receiver_idx is not None:
+            add_edge(receiver_idx, access_idx, "member_receiver")
+            add_edge(access_idx, receiver_idx, "member_receiver")
 
     last_identifier_by_name = {}
     identifier_occurrences = {}
@@ -980,14 +1098,31 @@ def code_to_graph(code: str, parser, language: str) -> tuple[Data, str]:
     return Data(x=x, edge_index=edge_index, edge_attr=edge_attr), "ok"
 
 
+def ast_cache_metadata(language: str) -> dict[str, object]:
+    return {
+        "schema_version": AST_SCHEMA_VERSION,
+        "language": language,
+        "max_ast_nodes": MAX_AST_NODES,
+        "node_type_hash_buckets": NODE_TYPE_HASH_BUCKETS,
+        "edge_types": EDGE_TYPES,
+        "min_same_identifier_length": MIN_SAME_IDENTIFIER_LENGTH,
+        "max_same_identifier_occurrences": MAX_SAME_IDENTIFIER_OCCURRENCES,
+    }
+
+
 def cache_ast_graphs(split_df: pd.DataFrame, paths: Paths, language: str, force: bool, logger: RunLogger) -> None:
+    metadata = ast_cache_metadata(language)
     if paths.ast_graphs.exists() and paths.ast_parse_result.exists() and not force:
-        cached_graphs = load_trusted_artifact(paths.ast_graphs, map_location="cpu")
         expected_ids = set(split_df["sample_id"].astype(str))
-        if set(map(str, cached_graphs.keys())) == expected_ids:
+        if cache_metadata_matches(paths.ast_cache_meta, metadata) and tensor_cache_ids_match(
+            paths.ast_graphs,
+            paths.ast_cache_ids,
+            expected_ids,
+            logger,
+        ):
             logger.info(f"Reuse AST graph cache/parse audit: {paths.ast_graphs}, {paths.ast_parse_result}")
             return
-        logger.info("AST cache IDs do not match current split; rebuilding AST graph cache.")
+        logger.info("AST cache schema or IDs changed; rebuilding AST graph cache.")
 
     logger.info("Start AST parse and graph cache.")
     source_by_id = load_source_cache(paths)
@@ -1016,6 +1151,8 @@ def cache_ast_graphs(split_df: pd.DataFrame, paths: Paths, language: str, force:
             }
         )
     torch.save(graph_by_id, paths.ast_graphs)
+    write_cache_ids(paths.ast_cache_ids, set(map(str, graph_by_id.keys())))
+    write_cache_metadata(paths.ast_cache_meta, metadata)
     pd.DataFrame(parse_rows).to_csv(paths.ast_parse_result, index=False)
     status_counts = pd.Series([row["status"] for row in parse_rows]).value_counts().to_dict()
     logger.info(f"Wrote AST graphs rows={len(parse_rows)} status_counts={status_counts} file={paths.ast_parse_result}")
@@ -1036,6 +1173,7 @@ def prepare_artifacts(args: argparse.Namespace, paths: Paths, logger: RunLogger)
         split_df,
         paths,
         tokenizer,
+        args.smell,
         FORCE_REBUILD_TOKENS or args.force_rebuild_tokens or downstream_changed,
         logger,
     )
@@ -1140,7 +1278,7 @@ def tune_threshold(labels: list[int], probs: list[float]) -> tuple[float, dict[s
     return best_threshold, best_metrics if best_metrics is not None else compute_metrics(labels, probs)
 
 
-def run_epoch(model, loader, criterion, device, is_train: bool, optimizer=None, threshold: float = 0.5):
+def run_epoch(model, loader, criterion, device, is_train: bool, optimizer=None, scheduler=None, threshold: float = 0.5):
     model.train(is_train)
     total_loss = 0.0
     labels = []
@@ -1156,6 +1294,8 @@ def run_epoch(model, loader, criterion, device, is_train: bool, optimizer=None, 
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
+                if scheduler is not None:
+                    scheduler.step()
         total_loss += float(loss.item()) * batch["labels"].size(0)
         prob = torch.softmax(logits.detach(), dim=-1)[:, 1]
         labels.extend(batch["labels"].detach().cpu().tolist())
@@ -1201,6 +1341,15 @@ def is_better_threshold(
     return False
 
 
+def result_input_type(model_name: str, target_smell: str) -> str:
+    source_input = "method source + containing class context" if target_smell == "FeatureEnvy" else "raw method source"
+    if model_name == "unixcoder":
+        return source_input
+    if model_name == "ast_gat":
+        return "typed AST graph with member-receiver edges"
+    return f"{source_input} + typed AST graph"
+
+
 def write_result(args, paths: Paths, split_df: pd.DataFrame, metrics: dict[str, float], runtime: float) -> None:
     split_sizes = split_df["split"].value_counts().to_dict()
     split_protocol = (
@@ -1217,7 +1366,7 @@ def write_result(args, paths: Paths, split_df: pd.DataFrame, metrics: dict[str, 
         "dataset_name": "DeepLearningSmells",
         "language": args.language.capitalize(),
         "smells": target_smell,
-        "input_type": "raw source code",
+        "input_type": result_input_type(args.model, target_smell),
         "split_protocol": split_protocol,
         "seed": SEED,
         "train_size": split_sizes.get("train", 0),
@@ -1266,6 +1415,16 @@ def train_eval_test(args: argparse.Namespace, paths: Paths, split_df: pd.DataFra
     model = build_model(args.model).to(device)
     optimizer = AdamW(model.parameters(), lr=LEARNING_RATE, weight_decay=WEIGHT_DECAY)
     criterion = FocalLoss(alpha=class_weights(split_df, device), gamma=FOCAL_GAMMA)
+    scheduler = None
+    if not args.eval_only and args.model in {"unixcoder", "fusion"}:
+        total_steps = max(1, args.epochs * len(train_loader))
+        warmup_steps = round(total_steps * WARMUP_RATIO)
+        scheduler = get_linear_schedule_with_warmup(
+            optimizer,
+            num_warmup_steps=warmup_steps,
+            num_training_steps=total_steps,
+        )
+        logger.info(f"Linear LR schedule total_steps={total_steps} warmup_steps={warmup_steps}")
 
     started = time.time()
     best_metrics = None
@@ -1282,7 +1441,15 @@ def train_eval_test(args: argparse.Namespace, paths: Paths, split_df: pd.DataFra
         best_threshold = float(checkpoint.get("threshold", 0.5))
     else:
         for epoch in range(1, args.epochs + 1):
-            train_loss, train_metrics, _, _ = run_epoch(model, train_loader, criterion, device, is_train=True, optimizer=optimizer)
+            train_loss, train_metrics, _, _ = run_epoch(
+                model,
+                train_loader,
+                criterion,
+                device,
+                is_train=True,
+                optimizer=optimizer,
+                scheduler=scheduler,
+            )
             val_loss, _, val_labels, val_probs = run_epoch(model, val_loader, criterion, device, is_train=False)
             threshold, val_metrics = tune_threshold(val_labels, val_probs)
             print(
@@ -1332,9 +1499,7 @@ def main() -> None:
         prepare_args = argparse.Namespace(**vars(args))
         prepare_args.smell = current_smell
         prepare_args.target_smell = current_smell
-        prepare_args.model = models[0]
-        prepare_log_name = "prepare" if args.model == "all" else models[0]
-        prepare_paths = get_paths(prepare_args.language, current_smell, prepare_log_name)
+        prepare_paths = get_paths(prepare_args.language, current_smell, "prepare")
         prepare_logger = RunLogger(prepare_paths.log_file)
 
         print(f"\n===== {prepare_args.language}/{current_smell}/prepare =====")

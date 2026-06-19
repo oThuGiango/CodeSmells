@@ -13,7 +13,7 @@ class ASTGATClassifier(nn.Module):
         hidden_dim: int = 128,
         heads: int = 4,
         layers: int = 2,
-        edge_feature_dim: int = 6,
+        edge_feature_dim: int = 7,
         num_labels: int = 2,
         dropout: float = 0.2,
     ):
