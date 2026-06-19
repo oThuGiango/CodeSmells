@@ -18,9 +18,8 @@ __pycache__/
 *~
 
 # Experiment outputs
-artifacts/
-results/
-*.log
+artifacts/**/dataset_index.csv
+artifacts/**/ast_graphs.pt
 
 # Model/download caches
 .cache/
