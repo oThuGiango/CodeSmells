@@ -43,6 +43,7 @@ cd ~/DeepLearningSmells
 python3.10 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip setuptools wheel
+sudo apt install p7zip-full
 python -m pip install -r requirements.txt
 ~~~
 

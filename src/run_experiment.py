@@ -226,6 +226,11 @@ def get_device() -> torch.device:
     return torch.device(DEVICE)
 
 
+def load_trusted_artifact(path: Path, map_location):
+    # These pickle-based files are generated locally by this experiment.
+    return torch.load(path, map_location=map_location, weights_only=False)
+
+
 def get_paths(language: str, smell: str, model_name: str) -> Paths:
     artifact_dir = PROJECT_ROOT / "artifacts" / language / smell
     checkpoint_dir = PROJECT_ROOT / "checkpoints" / language / smell
@@ -425,6 +430,7 @@ def write_sample_audit(
     available_positive: int,
     available_negative: int,
     sampled_df: pd.DataFrame,
+    index_rows: int,
 ) -> None:
     rows = [
         {
@@ -436,6 +442,11 @@ def write_sample_audit(
             "selected_negative": selected_negative,
             "selected_total": len(sampled_df),
             "repo_count": sampled_df["repo"].nunique() if "repo" in sampled_df else 0,
+            "seed": SEED,
+            "train_ratio": TRAIN_RATIO,
+            "validation_ratio": VAL_RATIO,
+            "test_ratio": TEST_RATIO,
+            "index_rows": index_rows,
         }
     ]
     pd.DataFrame(rows).to_csv(paths.sample_audit, index=False)
@@ -471,13 +482,61 @@ def has_expected_split_sizes(split_df: pd.DataFrame) -> bool:
     return all(actual.get(name, 0) == size for name, size in expected.items())
 
 
-def sample_and_split(index_df: pd.DataFrame, paths: Paths, positive_n: int, negative_n: int, force: bool, logger: RunLogger) -> pd.DataFrame:
+def sample_cache_matches(
+    index_df: pd.DataFrame,
+    cached: pd.DataFrame,
+    paths: Paths,
+    requested_positive: int,
+    requested_negative: int,
+) -> bool:
+    if not paths.sample_audit.exists() or "split_protocol" not in cached or not has_expected_split_sizes(cached):
+        return False
+    audit = pd.read_csv(paths.sample_audit)
+    if audit.empty:
+        return False
+    row = audit.iloc[0]
+    required = {
+        "requested_positive",
+        "requested_negative",
+        "selected_positive",
+        "selected_negative",
+        "seed",
+        "train_ratio",
+        "validation_ratio",
+        "test_ratio",
+        "index_rows",
+    }
+    if not required.issubset(audit.columns):
+        return False
+    cached_counts = cached["label"].value_counts().to_dict()
+    return (
+        int(row["requested_positive"]) == requested_positive
+        and int(row["requested_negative"]) == requested_negative
+        and int(row["selected_positive"]) == cached_counts.get(1, 0)
+        and int(row["selected_negative"]) == cached_counts.get(0, 0)
+        and int(row["seed"]) == SEED
+        and float(row["train_ratio"]) == TRAIN_RATIO
+        and float(row["validation_ratio"]) == VAL_RATIO
+        and float(row["test_ratio"]) == TEST_RATIO
+        and int(row["index_rows"]) == len(index_df)
+        and set(cached["sample_id"].astype(str)).issubset(set(index_df["sample_id"].astype(str)))
+    )
+
+
+def sample_and_split(
+    index_df: pd.DataFrame,
+    paths: Paths,
+    positive_n: int,
+    negative_n: int,
+    force: bool,
+    logger: RunLogger,
+) -> tuple[pd.DataFrame, bool]:
     if paths.splits.exists() and paths.sampled_dataset.exists() and not force:
         cached = pd.read_csv(paths.splits)
-        if "split_protocol" in cached and has_expected_split_sizes(cached):
+        if sample_cache_matches(index_df, cached, paths, positive_n, negative_n):
             logger.info(f"Reuse sampled_dataset/splits: {paths.sampled_dataset}, {paths.splits}")
-            return cached
-        logger.info("Cached split lacks protocol metadata or exact 70/15/15 sizes; rebuilding sample/split.")
+            return cached, False
+        logger.info("Sampling config/index changed or cache is incomplete; rebuilding sample/split.")
 
     rng = random.Random(SEED)
     positives = index_df[index_df["label"] == 1].to_dict("records")
@@ -495,7 +554,17 @@ def sample_and_split(index_df: pd.DataFrame, paths: Paths, positive_n: int, nega
     rng.shuffle(sampled)
     sampled_df = pd.DataFrame(sampled)
     sampled_df.to_csv(paths.sampled_dataset, index=False)
-    write_sample_audit(paths, requested_positive, requested_negative, positive_n, negative_n, len(positives), len(negatives), sampled_df)
+    write_sample_audit(
+        paths,
+        requested_positive,
+        requested_negative,
+        positive_n,
+        negative_n,
+        len(positives),
+        len(negatives),
+        sampled_df,
+        len(index_df),
+    )
     logger.info(
         "Sampled data "
         f"requested_pos={requested_positive} requested_neg={requested_negative} "
@@ -520,7 +589,7 @@ def sample_and_split(index_df: pd.DataFrame, paths: Paths, positive_n: int, nega
         f"Wrote splits train={split_counts.get('train', 0)} val={split_counts.get('val', 0)} "
         f"test={split_counts.get('test', 0)} protocol={split_protocol}"
     )
-    return split_df
+    return split_df, True
 
 
 def split_repo_aware(sampled_df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, str]:
@@ -637,7 +706,7 @@ def cache_sampled_sources(split_df: pd.DataFrame, paths: Paths, force: bool, log
     expected_ids = set(split_df["sample_id"].astype(str))
     if paths.sampled_sources.exists() and not force:
         existing_ids = cached_source_ids(paths.sampled_sources, paths.source_cache_ids)
-        if expected_ids.issubset(existing_ids):
+        if expected_ids == existing_ids:
             logger.info(f"Reuse sampled source cache: {paths.sampled_sources}")
             return expected_ids
         logger.warning("Source cache is incomplete for the current split; rebuilding it.")
@@ -753,8 +822,12 @@ def load_source_cache(paths: Paths) -> dict[str, str]:
 
 def cache_tokenization(split_df: pd.DataFrame, paths: Paths, tokenizer, force: bool, logger: RunLogger) -> None:
     if paths.token_cache.exists() and paths.token_stats.exists() and not force:
-        logger.info(f"Reuse token cache/stats: {paths.token_cache}, {paths.token_stats}")
-        return
+        cached_tokens = load_trusted_artifact(paths.token_cache, map_location="cpu")
+        expected_ids = set(split_df["sample_id"].astype(str))
+        if set(map(str, cached_tokens.keys())) == expected_ids:
+            logger.info(f"Reuse token cache/stats: {paths.token_cache}, {paths.token_stats}")
+            return
+        logger.info("Token cache IDs do not match current split; rebuilding token cache/stats.")
     logger.info("Start tokenization cache and token length audit.")
     source_by_id = load_source_cache(paths)
     token_by_id = {}
@@ -906,8 +979,12 @@ def code_to_graph(code: str, parser, language: str) -> tuple[Data, str]:
 
 def cache_ast_graphs(split_df: pd.DataFrame, paths: Paths, language: str, force: bool, logger: RunLogger) -> None:
     if paths.ast_graphs.exists() and paths.ast_parse_result.exists() and not force:
-        logger.info(f"Reuse AST graph cache/parse audit: {paths.ast_graphs}, {paths.ast_parse_result}")
-        return
+        cached_graphs = load_trusted_artifact(paths.ast_graphs, map_location="cpu")
+        expected_ids = set(split_df["sample_id"].astype(str))
+        if set(map(str, cached_graphs.keys())) == expected_ids:
+            logger.info(f"Reuse AST graph cache/parse audit: {paths.ast_graphs}, {paths.ast_parse_result}")
+            return
+        logger.info("AST cache IDs do not match current split; rebuilding AST graph cache.")
 
     logger.info("Start AST parse and graph cache.")
     source_by_id = load_source_cache(paths)
@@ -944,13 +1021,28 @@ def cache_ast_graphs(split_df: pd.DataFrame, paths: Paths, language: str, force:
 def prepare_artifacts(args: argparse.Namespace, paths: Paths, logger: RunLogger) -> pd.DataFrame:
     positive_n, negative_n = smell_sample_size(args.smell, args.positive, args.negative, args.dev)
     logger.info(f"Prepare artifacts requested_positive={positive_n} requested_negative={negative_n}")
-    index_df = build_dataset_index(args.language, args.smell, paths, FORCE_REBUILD_INDEX or args.force_rebuild_index, logger)
-    split_df = sample_and_split(index_df, paths, positive_n, negative_n, FORCE_RESAMPLE or args.force_resample, logger)
-    valid_source_ids = cache_sampled_sources(split_df, paths, FORCE_RESAMPLE or args.force_resample, logger)
+    force_index = FORCE_REBUILD_INDEX or args.force_rebuild_index
+    force_sample = FORCE_RESAMPLE or args.force_resample or force_index
+    index_df = build_dataset_index(args.language, args.smell, paths, force_index, logger)
+    split_df, sample_rebuilt = sample_and_split(index_df, paths, positive_n, negative_n, force_sample, logger)
+    downstream_changed = force_sample or sample_rebuilt
+    valid_source_ids = cache_sampled_sources(split_df, paths, downstream_changed, logger)
     split_df = filter_and_resplit_missing_sources(split_df, valid_source_ids, paths, logger)
     tokenizer = AutoTokenizer.from_pretrained(UNIXCODER_NAME)
-    cache_tokenization(split_df, paths, tokenizer, FORCE_REBUILD_TOKENS or args.force_rebuild_tokens or args.force_resample, logger)
-    cache_ast_graphs(split_df, paths, args.language, FORCE_REBUILD_AST or args.force_rebuild_ast, logger)
+    cache_tokenization(
+        split_df,
+        paths,
+        tokenizer,
+        FORCE_REBUILD_TOKENS or args.force_rebuild_tokens or downstream_changed,
+        logger,
+    )
+    cache_ast_graphs(
+        split_df,
+        paths,
+        args.language,
+        FORCE_REBUILD_AST or args.force_rebuild_ast or downstream_changed,
+        logger,
+    )
     return split_df
 
 
@@ -1155,8 +1247,8 @@ def write_result(args, paths: Paths, split_df: pd.DataFrame, metrics: dict[str, 
 def train_eval_test(args: argparse.Namespace, paths: Paths, split_df: pd.DataFrame, logger: RunLogger) -> None:
     logger.info("Start train/eval/test.")
     tokenizer = AutoTokenizer.from_pretrained(UNIXCODER_NAME)
-    token_by_id = torch.load(paths.token_cache, map_location="cpu")
-    graph_by_id = torch.load(paths.ast_graphs, map_location="cpu")
+    token_by_id = load_trusted_artifact(paths.token_cache, map_location="cpu")
+    graph_by_id = load_trusted_artifact(paths.ast_graphs, map_location="cpu")
 
     train_ds = CachedSmellDataset(split_df, "train", token_by_id, graph_by_id)
     val_ds = CachedSmellDataset(split_df, "val", token_by_id, graph_by_id)
@@ -1183,7 +1275,7 @@ def train_eval_test(args: argparse.Namespace, paths: Paths, split_df: pd.DataFra
         logger.info(f"Eval-only mode loading checkpoint: {paths.best_checkpoint}")
         if not paths.best_checkpoint.exists():
             raise FileNotFoundError(f"Missing checkpoint for eval-only: {paths.best_checkpoint}")
-        checkpoint = torch.load(paths.best_checkpoint, map_location=device)
+        checkpoint = load_trusted_artifact(paths.best_checkpoint, map_location=device)
         model.load_state_dict(checkpoint["model_state"])
         best_threshold = float(checkpoint.get("threshold", 0.5))
     else:
@@ -1217,7 +1309,7 @@ def train_eval_test(args: argparse.Namespace, paths: Paths, split_df: pd.DataFra
                     break
 
         if SAVE_BEST_MODEL and not args.no_save_model and paths.best_checkpoint.exists():
-            checkpoint = torch.load(paths.best_checkpoint, map_location=device)
+            checkpoint = load_trusted_artifact(paths.best_checkpoint, map_location=device)
             model.load_state_dict(checkpoint["model_state"])
             best_threshold = float(checkpoint.get("threshold", best_threshold))
 
