@@ -1,0 +1,14 @@
+[2026-06-20 01:24:57] INFO Prepare start language=java smell=ComplexConditional models=['unixcoder', 'ast_gat', 'fusion'] dev=False
+[2026-06-20 01:24:57] INFO Prepare artifacts requested_positive=2000 requested_negative=8000
+[2026-06-20 01:24:57] INFO Use archive only (ignore extensionless _1/_2 files): /home/opesai/Downloads/CodeSmells/data/training_data_java/ComplexConditional.7z
+[2026-06-20 01:24:57] INFO Index archive: /home/opesai/Downloads/CodeSmells/data/training_data_java/ComplexConditional.7z
+[2026-06-20 01:27:11] INFO Wrote dataset_index rows=2272575 positives=20582 negatives=2251993 repos=2 class_parse={'parsed': 2226707, 'unparsed': 45868}
+[2026-06-20 01:27:30] INFO Sampled data requested_pos=2000 requested_neg=8000 available_pos=20582 available_neg=2251993 selected_pos=2000 selected_neg=8000 repos=2
+[2026-06-20 01:27:30] INFO Wrote splits train=7000 val=1500 test=1500 protocol=70/15/15 stratified by label (repo-aware exact split unavailable)
+[2026-06-20 01:27:31] INFO Extract sampled sources archive=/home/opesai/Downloads/CodeSmells/data/training_data_java/ComplexConditional.7z targets=10000
+[2026-06-20 01:35:08] INFO Wrote sampled source cache valid=10000 missing=0 audit=/home/opesai/Downloads/CodeSmells/artifacts/java/ComplexConditional/source_extract_audit.csv
+[2026-06-20 01:35:10] INFO Start tokenization cache and token length audit.
+[2026-06-20 01:35:30] INFO Wrote token cache/stats rows=10000 max_token_length=18974 truncated=827 file=/home/opesai/Downloads/CodeSmells/artifacts/java/ComplexConditional/token_stats.csv
+[2026-06-20 01:35:30] INFO Start AST parse and graph cache.
+[2026-06-20 01:36:33] INFO Wrote AST graphs rows=10000 status_counts={'ok': 10000} file=/home/opesai/Downloads/CodeSmells/artifacts/java/ComplexConditional/ast_parse_result.csv
+[2026-06-20 01:36:33] INFO Artifacts ready in: /home/opesai/Downloads/CodeSmells/artifacts/java/ComplexConditional

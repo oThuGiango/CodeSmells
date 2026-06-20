@@ -1,0 +1,21 @@
+[2026-06-20 05:30:55] INFO Model run start language=java smell=ComplexConditional model=fusion dev=False
+[2026-06-20 05:30:55] INFO Start train/eval/test.
+[2026-06-20 05:31:02] INFO Dataset sizes train=7000 val=1500 test=1500
+[2026-06-20 05:31:03] INFO Linear LR schedule total_steps=26250 warmup_steps=2625
+[2026-06-20 05:51:32] INFO epoch=1 train_loss=0.1301 val_loss=0.0938 val_mcc=0.8627 val_f1=0.8899 threshold=0.82
+[2026-06-20 05:51:33] INFO Saved best checkpoint epoch=1 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/ComplexConditional/fusion_best.pt
+[2026-06-20 06:12:02] INFO epoch=2 train_loss=0.0218 val_loss=0.0203 val_mcc=0.9601 val_f1=0.9677 threshold=0.84
+[2026-06-20 06:12:06] INFO Saved best checkpoint epoch=2 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/ComplexConditional/fusion_best.pt
+[2026-06-20 06:32:35] INFO epoch=3 train_loss=0.0128 val_loss=0.0158 val_mcc=0.9601 val_f1=0.9679 threshold=0.73
+[2026-06-20 06:32:40] INFO Saved best checkpoint epoch=3 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/ComplexConditional/fusion_best.pt
+[2026-06-20 06:53:09] INFO epoch=4 train_loss=0.0119 val_loss=0.0244 val_mcc=0.9686 val_f1=0.9748 threshold=0.88
+[2026-06-20 06:53:13] INFO Saved best checkpoint epoch=4 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/ComplexConditional/fusion_best.pt
+[2026-06-20 07:13:40] INFO epoch=5 train_loss=0.0069 val_loss=0.0167 val_mcc=0.9623 val_f1=0.9693 threshold=0.83
+[2026-06-20 07:33:54] INFO epoch=6 train_loss=0.0036 val_loss=0.0248 val_mcc=0.9625 val_f1=0.9700 threshold=0.87
+[2026-06-20 07:54:15] INFO epoch=7 train_loss=0.0038 val_loss=0.0237 val_mcc=0.9518 val_f1=0.9613 threshold=0.78
+[2026-06-20 08:14:34] INFO epoch=8 train_loss=0.0053 val_loss=0.0217 val_mcc=0.9644 val_f1=0.9713 threshold=0.85
+[2026-06-20 08:34:58] INFO epoch=9 train_loss=0.0038 val_loss=0.0234 val_mcc=0.9669 val_f1=0.9735 threshold=0.48
+[2026-06-20 08:34:58] INFO Early stopping at epoch 9. Best epoch: 4
+[2026-06-20 08:36:06] INFO test_loss=0.0255 threshold=0.88 test_metrics={'accuracy': 0.984, 'precision': 0.9726027397260274, 'recall': 0.9466666666666667, 'f1': 0.9594594594594594, 'mcc': 0.9496295299834763, 'pr_auc': 0.9947329774991174, 'roc_auc': 0.9983805555555555}
+[2026-06-20 08:36:06] INFO Result appended to: /home/opesai/Downloads/CodeSmells/results/results.csv
+[2026-06-20 08:36:06] INFO Model run finished successfully.

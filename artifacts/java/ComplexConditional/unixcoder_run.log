@@ -1,0 +1,21 @@
+[2026-06-20 01:36:33] INFO Model run start language=java smell=ComplexConditional model=unixcoder dev=False
+[2026-06-20 01:36:33] INFO Start train/eval/test.
+[2026-06-20 01:36:41] INFO Dataset sizes train=7000 val=1500 test=1500
+[2026-06-20 01:36:42] INFO Linear LR schedule total_steps=26250 warmup_steps=2625
+[2026-06-20 01:56:42] INFO epoch=1 train_loss=0.1243 val_loss=0.0652 val_mcc=0.8621 val_f1=0.8896 threshold=0.74
+[2026-06-20 01:56:43] INFO Saved best checkpoint epoch=1 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/ComplexConditional/unixcoder_best.pt
+[2026-06-20 02:16:40] INFO epoch=2 train_loss=0.0217 val_loss=0.0169 val_mcc=0.9452 val_f1=0.9561 threshold=0.62
+[2026-06-20 02:16:45] INFO Saved best checkpoint epoch=2 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/ComplexConditional/unixcoder_best.pt
+[2026-06-20 02:36:40] INFO epoch=3 train_loss=0.0135 val_loss=0.0269 val_mcc=0.9348 val_f1=0.9475 threshold=0.84
+[2026-06-20 02:56:28] INFO epoch=4 train_loss=0.0105 val_loss=0.0315 val_mcc=0.9432 val_f1=0.9542 threshold=0.88
+[2026-06-20 03:16:18] INFO epoch=5 train_loss=0.0122 val_loss=0.0193 val_mcc=0.9667 val_f1=0.9733 threshold=0.74
+[2026-06-20 03:16:23] INFO Saved best checkpoint epoch=5 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/ComplexConditional/unixcoder_best.pt
+[2026-06-20 03:36:18] INFO epoch=6 train_loss=0.0045 val_loss=0.0450 val_mcc=0.9644 val_f1=0.9714 threshold=0.51
+[2026-06-20 03:56:28] INFO epoch=7 train_loss=0.0047 val_loss=0.0240 val_mcc=0.9650 val_f1=0.9720 threshold=0.64
+[2026-06-20 04:16:35] INFO epoch=8 train_loss=0.0024 val_loss=0.0262 val_mcc=0.9630 val_f1=0.9704 threshold=0.61
+[2026-06-20 04:36:38] INFO epoch=9 train_loss=0.0028 val_loss=0.0213 val_mcc=0.9644 val_f1=0.9714 threshold=0.77
+[2026-06-20 04:56:23] INFO epoch=10 train_loss=0.0047 val_loss=0.0248 val_mcc=0.9645 val_f1=0.9716 threshold=0.57
+[2026-06-20 04:56:23] INFO Early stopping at epoch 10. Best epoch: 5
+[2026-06-20 04:57:27] INFO test_loss=0.0272 threshold=0.74 test_metrics={'accuracy': 0.9866666666666667, 'precision': 0.9666666666666667, 'recall': 0.9666666666666667, 'f1': 0.9666666666666667, 'mcc': 0.9583333333333334, 'pr_auc': 0.9955550348433814, 'roc_auc': 0.9987555555555555}
+[2026-06-20 04:57:27] INFO Result appended to: /home/opesai/Downloads/CodeSmells/results/results.csv
+[2026-06-20 04:57:27] INFO Model run finished successfully.

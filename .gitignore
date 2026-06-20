@@ -18,6 +18,7 @@ __pycache__/
 *~
 
 # Experiment outputs
+checkpoints/
 artifacts/**/dataset_index.csv
 artifacts/**/ast_graphs.pt
 

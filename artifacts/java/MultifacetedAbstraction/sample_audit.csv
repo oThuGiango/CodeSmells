@@ -1,0 +1,2 @@
+requested_positive,requested_negative,available_positive,available_negative,selected_positive,selected_negative,selected_total,repo_count,seed,train_ratio,validation_ratio,test_ratio,index_rows,index_version
+2000,8000,847,318651,847,3388,4235,2,42,0.7,0.15,0.15,319498,4

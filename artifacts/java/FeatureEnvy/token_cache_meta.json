@@ -1,0 +1,6 @@
+{
+  "feature_envy_class_context": true,
+  "max_token_length": 512,
+  "schema_version": 2,
+  "tokenizer": "microsoft/unixcoder-base"
+}

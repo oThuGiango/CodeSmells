@@ -1,0 +1,10 @@
+split,label,count,section,total,repo_count
+test,0.0,1200.0,label_count,,
+test,1.0,300.0,label_count,,
+train,0.0,5600.0,label_count,,
+train,1.0,1400.0,label_count,,
+val,0.0,1200.0,label_count,,
+val,1.0,300.0,label_count,,
+test,,,split_total,1500.0,2.0
+train,,,split_total,7000.0,2.0
+val,,,split_total,1500.0,2.0

@@ -1,0 +1,26 @@
+[2026-06-20 15:50:41] INFO Model run start language=java smell=FeatureEnvy model=fusion dev=False
+[2026-06-20 15:50:41] INFO Start train/eval/test.
+[2026-06-20 15:50:50] INFO Dataset sizes train=7000 val=1500 test=1500
+[2026-06-20 15:50:51] INFO Linear LR schedule total_steps=26250 warmup_steps=2625
+[2026-06-20 16:12:57] INFO epoch=1 train_loss=0.1756 val_loss=0.1770 val_mcc=0.5054 val_f1=0.6116 threshold=0.72
+[2026-06-20 16:12:58] INFO Saved best checkpoint epoch=1 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/FeatureEnvy/fusion_best.pt
+[2026-06-20 16:35:07] INFO epoch=2 train_loss=0.1008 val_loss=0.0988 val_mcc=0.6495 val_f1=0.7201 threshold=0.53
+[2026-06-20 16:35:11] INFO Saved best checkpoint epoch=2 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/FeatureEnvy/fusion_best.pt
+[2026-06-20 16:57:19] INFO epoch=3 train_loss=0.0641 val_loss=0.1210 val_mcc=0.6490 val_f1=0.7135 threshold=0.64
+[2026-06-20 17:19:27] INFO epoch=4 train_loss=0.0463 val_loss=0.1187 val_mcc=0.6857 val_f1=0.7508 threshold=0.65
+[2026-06-20 17:19:32] INFO Saved best checkpoint epoch=4 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/FeatureEnvy/fusion_best.pt
+[2026-06-20 17:41:41] INFO epoch=5 train_loss=0.0298 val_loss=0.1880 val_mcc=0.6841 val_f1=0.7482 threshold=0.28
+[2026-06-20 18:03:48] INFO epoch=6 train_loss=0.0200 val_loss=0.3050 val_mcc=0.6709 val_f1=0.7371 threshold=0.16
+[2026-06-20 18:25:57] INFO epoch=7 train_loss=0.0181 val_loss=0.1816 val_mcc=0.6747 val_f1=0.7403 threshold=0.28
+[2026-06-20 18:48:06] INFO epoch=8 train_loss=0.0125 val_loss=0.3185 val_mcc=0.6749 val_f1=0.7406 threshold=0.12
+[2026-06-20 19:10:13] INFO epoch=9 train_loss=0.0084 val_loss=0.3203 val_mcc=0.6887 val_f1=0.7522 threshold=0.12
+[2026-06-20 19:10:17] INFO Saved best checkpoint epoch=9 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/FeatureEnvy/fusion_best.pt
+[2026-06-20 19:32:23] INFO epoch=10 train_loss=0.0061 val_loss=0.5358 val_mcc=0.6455 val_f1=0.7194 threshold=0.07
+[2026-06-20 19:54:28] INFO epoch=11 train_loss=0.0083 val_loss=0.1992 val_mcc=0.6810 val_f1=0.7450 threshold=0.26
+[2026-06-20 20:16:37] INFO epoch=12 train_loss=0.0052 val_loss=0.2172 val_mcc=0.6698 val_f1=0.7383 threshold=0.34
+[2026-06-20 20:38:42] INFO epoch=13 train_loss=0.0025 val_loss=0.4109 val_mcc=0.6557 val_f1=0.7270 threshold=0.09
+[2026-06-20 21:00:52] INFO epoch=14 train_loss=0.0041 val_loss=0.3509 val_mcc=0.6620 val_f1=0.7288 threshold=0.10
+[2026-06-20 21:00:52] INFO Early stopping at epoch 14. Best epoch: 9
+[2026-06-20 21:02:18] INFO test_loss=0.2720 threshold=0.12 test_metrics={'accuracy': 0.892, 'precision': 0.6815789473684211, 'recall': 0.8633333333333333, 'f1': 0.7617647058823529, 'mcc': 0.7012781195359297, 'pr_auc': 0.8224218189567223, 'roc_auc': 0.9542472222222222}
+[2026-06-20 21:02:18] INFO Result appended to: /home/opesai/Downloads/CodeSmells/results/results.csv
+[2026-06-20 21:02:18] INFO Model run finished successfully.

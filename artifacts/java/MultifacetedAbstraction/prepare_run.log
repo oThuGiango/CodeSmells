@@ -1,0 +1,48 @@
+[2026-06-20 21:02:18] INFO Prepare start language=java smell=MultifacetedAbstraction models=['unixcoder', 'ast_gat', 'fusion'] dev=False
+[2026-06-20 21:02:18] INFO Prepare artifacts requested_positive=2000 requested_negative=8000
+[2026-06-20 21:02:18] INFO Use archive only (ignore extensionless _1/_2 files): /home/opesai/Downloads/CodeSmells/data/training_data_java/MultifacetedAbstraction.7z
+[2026-06-20 21:02:18] INFO Index archive: /home/opesai/Downloads/CodeSmells/data/training_data_java/MultifacetedAbstraction.7z
+[2026-06-20 21:02:36] INFO Wrote dataset_index rows=319498 positives=847 negatives=318651 repos=2 class_parse={'unparsed': 318028, 'parsed': 1470}
+[2026-06-20 21:02:39] INFO Sampled data requested_pos=2000 requested_neg=8000 available_pos=847 available_neg=318651 selected_pos=847 selected_neg=3388 repos=2
+[2026-06-20 21:02:39] INFO Wrote splits train=2964 val=635 test=636 protocol=70/15/15 stratified by label (repo-aware exact split unavailable)
+[2026-06-20 21:02:39] INFO Extract sampled sources archive=/home/opesai/Downloads/CodeSmells/data/training_data_java/MultifacetedAbstraction.7z targets=4235
+[2026-06-20 21:03:35] INFO Prepare start language=java smell=MultifacetedAbstraction models=['unixcoder', 'ast_gat', 'fusion'] dev=False
+[2026-06-20 21:03:35] INFO Prepare artifacts requested_positive=2000 requested_negative=8000
+[2026-06-20 21:03:35] INFO Use archive only (ignore extensionless _1/_2 files): /home/opesai/Downloads/CodeSmells/data/training_data_java/MultifacetedAbstraction.7z
+[2026-06-20 21:03:37] INFO Reuse dataset index: /home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction/dataset_index.csv
+[2026-06-20 21:03:37] INFO Reuse sampled_dataset/splits: /home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction/sampled_dataset.csv, /home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction/splits.csv
+[2026-06-20 21:03:37] WARNING Source cache is incomplete for the current split; rebuilding it.
+[2026-06-20 21:03:37] INFO Extract sampled sources archive=/home/opesai/Downloads/CodeSmells/data/training_data_java/MultifacetedAbstraction.7z targets=4235
+[2026-06-20 21:04:21] INFO Wrote sampled source cache valid=4235 missing=0 audit=/home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction/source_extract_audit.csv
+[2026-06-20 21:04:23] INFO Start tokenization cache and token length audit.
+[2026-06-20 21:05:17] INFO Wrote token cache/stats rows=4235 max_token_length=289219 truncated=1946 file=/home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction/token_stats.csv
+[2026-06-20 21:05:17] INFO Start AST parse and graph cache.
+[2026-06-20 21:06:21] INFO Wrote AST graphs rows=4235 status_counts={'ok': 4235} file=/home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction/ast_parse_result.csv
+[2026-06-20 21:06:21] INFO Artifacts ready in: /home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction
+[2026-06-20 22:18:03] INFO Prepare start language=java smell=MultifacetedAbstraction models=['unixcoder'] dev=False
+[2026-06-20 22:18:03] INFO Prepare artifacts requested_positive=2000 requested_negative=8000
+[2026-06-20 22:18:03] INFO Use archive only (ignore extensionless _1/_2 files): /home/opesai/Downloads/CodeSmells/data/training_data_java/MultifacetedAbstraction.7z
+[2026-06-20 22:18:05] INFO Reuse dataset index: /home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction/dataset_index.csv
+[2026-06-20 22:18:05] INFO Reuse sampled_dataset/splits: /home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction/sampled_dataset.csv, /home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction/splits.csv
+[2026-06-20 22:18:05] INFO Reuse sampled source cache: /home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction/sampled_sources.jsonl
+[2026-06-20 22:18:06] INFO Reuse token cache/stats: /home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction/token_cache.pt, /home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction/token_stats.csv
+[2026-06-20 22:18:06] INFO Reuse AST graph cache/parse audit: /home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction/ast_graphs.pt, /home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction/ast_parse_result.csv
+[2026-06-20 22:18:06] INFO Artifacts ready in: /home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction
+[2026-06-20 22:20:15] INFO Prepare start language=java smell=MultifacetedAbstraction models=['ast_gat'] dev=False
+[2026-06-20 22:20:15] INFO Prepare artifacts requested_positive=2000 requested_negative=8000
+[2026-06-20 22:20:15] INFO Use archive only (ignore extensionless _1/_2 files): /home/opesai/Downloads/CodeSmells/data/training_data_java/MultifacetedAbstraction.7z
+[2026-06-20 22:20:17] INFO Reuse dataset index: /home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction/dataset_index.csv
+[2026-06-20 22:20:17] INFO Reuse sampled_dataset/splits: /home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction/sampled_dataset.csv, /home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction/splits.csv
+[2026-06-20 22:20:17] INFO Reuse sampled source cache: /home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction/sampled_sources.jsonl
+[2026-06-20 22:20:19] INFO Reuse token cache/stats: /home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction/token_cache.pt, /home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction/token_stats.csv
+[2026-06-20 22:20:19] INFO Reuse AST graph cache/parse audit: /home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction/ast_graphs.pt, /home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction/ast_parse_result.csv
+[2026-06-20 22:20:19] INFO Artifacts ready in: /home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction
+[2026-06-20 22:36:09] INFO Prepare start language=java smell=MultifacetedAbstraction models=['fusion'] dev=False
+[2026-06-20 22:36:09] INFO Prepare artifacts requested_positive=2000 requested_negative=8000
+[2026-06-20 22:36:09] INFO Use archive only (ignore extensionless _1/_2 files): /home/opesai/Downloads/CodeSmells/data/training_data_java/MultifacetedAbstraction.7z
+[2026-06-20 22:36:11] INFO Reuse dataset index: /home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction/dataset_index.csv
+[2026-06-20 22:36:11] INFO Reuse sampled_dataset/splits: /home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction/sampled_dataset.csv, /home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction/splits.csv
+[2026-06-20 22:36:11] INFO Reuse sampled source cache: /home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction/sampled_sources.jsonl
+[2026-06-20 22:36:13] INFO Reuse token cache/stats: /home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction/token_cache.pt, /home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction/token_stats.csv
+[2026-06-20 22:36:13] INFO Reuse AST graph cache/parse audit: /home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction/ast_graphs.pt, /home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction/ast_parse_result.csv
+[2026-06-20 22:36:13] INFO Artifacts ready in: /home/opesai/Downloads/CodeSmells/artifacts/java/MultifacetedAbstraction

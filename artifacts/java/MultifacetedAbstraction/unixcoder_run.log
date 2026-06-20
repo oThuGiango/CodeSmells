@@ -1,0 +1,24 @@
+[2026-06-20 21:06:21] INFO Model run start language=java smell=MultifacetedAbstraction model=unixcoder dev=False
+[2026-06-20 21:06:21] INFO Start train/eval/test.
+[2026-06-20 21:06:26] INFO Dataset sizes train=2964 val=635 test=636
+[2026-06-20 21:06:28] INFO Linear LR schedule total_steps=2964 warmup_steps=296
+[2026-06-20 21:15:19] INFO epoch=1 train_loss=0.1632 val_loss=0.0774 val_mcc=0.7390 val_f1=0.7915 threshold=0.63
+[2026-06-20 21:15:20] INFO Saved best checkpoint epoch=1 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/MultifacetedAbstraction/unixcoder_best.pt
+[2026-06-20 21:24:10] INFO epoch=2 train_loss=0.0880 val_loss=0.0773 val_mcc=0.8317 val_f1=0.8651 threshold=0.80
+[2026-06-20 21:24:14] INFO Saved best checkpoint epoch=2 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/MultifacetedAbstraction/unixcoder_best.pt
+[2026-06-20 21:33:04] INFO epoch=3 train_loss=0.0536 val_loss=0.0692 val_mcc=0.8157 val_f1=0.8520 threshold=0.73
+[2026-06-20 21:41:54] INFO epoch=4 train_loss=0.0383 val_loss=0.0557 val_mcc=0.8533 val_f1=0.8828 threshold=0.76
+[2026-06-20 21:41:58] INFO Saved best checkpoint epoch=4 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/MultifacetedAbstraction/unixcoder_best.pt
+[2026-06-20 21:50:49] INFO epoch=5 train_loss=0.0269 val_loss=0.0534 val_mcc=0.8542 val_f1=0.8837 threshold=0.63
+[2026-06-20 21:50:53] INFO Saved best checkpoint epoch=5 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/MultifacetedAbstraction/unixcoder_best.pt
+[2026-06-20 21:59:44] INFO epoch=6 train_loss=0.0157 val_loss=0.1025 val_mcc=0.8553 val_f1=0.8846 threshold=0.36
+[2026-06-20 21:59:48] INFO Saved best checkpoint epoch=6 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/MultifacetedAbstraction/unixcoder_best.pt
+[2026-06-20 22:08:38] INFO epoch=7 train_loss=0.0051 val_loss=0.1516 val_mcc=0.8508 val_f1=0.8800 threshold=0.48
+[2026-06-20 22:17:27] INFO epoch=8 train_loss=0.0118 val_loss=0.0888 val_mcc=0.8408 val_f1=0.8720 threshold=0.63
+[2026-06-20 22:18:06] INFO Model run start language=java smell=MultifacetedAbstraction model=unixcoder dev=False
+[2026-06-20 22:18:06] INFO Start train/eval/test.
+[2026-06-20 22:18:11] INFO Dataset sizes train=2964 val=635 test=636
+[2026-06-20 22:18:13] INFO Eval-only mode loading checkpoint: /home/opesai/Downloads/CodeSmells/checkpoints/java/MultifacetedAbstraction/unixcoder_best.pt
+[2026-06-20 22:18:49] INFO test_loss=0.1323 threshold=0.36 test_metrics={'accuracy': 0.9323899371069182, 'precision': 0.795774647887324, 'recall': 0.889763779527559, 'f1': 0.8401486988847584, 'mcc': 0.7994443764107074, 'pr_auc': 0.8817186361014439, 'roc_auc': 0.9701282428105131}
+[2026-06-20 22:18:49] INFO Result appended to: /home/opesai/Downloads/CodeSmells/results/results.csv
+[2026-06-20 22:18:49] INFO Model run finished successfully.

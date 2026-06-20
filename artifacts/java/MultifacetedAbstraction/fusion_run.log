@@ -1,0 +1,20 @@
+[2026-06-20 22:36:13] INFO Model run start language=java smell=MultifacetedAbstraction model=fusion dev=False
+[2026-06-20 22:36:13] INFO Start train/eval/test.
+[2026-06-20 22:36:17] INFO Dataset sizes train=2964 val=635 test=636
+[2026-06-20 22:36:20] INFO Linear LR schedule total_steps=1729 warmup_steps=173
+[2026-06-20 22:45:25] INFO epoch=1 train_loss=0.1325 val_loss=0.1246 val_mcc=0.7555 val_f1=0.8032 threshold=0.81
+[2026-06-20 22:45:26] INFO Saved best checkpoint epoch=1 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/MultifacetedAbstraction/fusion_best.pt
+[2026-06-20 22:54:29] INFO epoch=2 train_loss=0.0726 val_loss=0.0956 val_mcc=0.7954 val_f1=0.8357 threshold=0.76
+[2026-06-20 22:54:34] INFO Saved best checkpoint epoch=2 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/MultifacetedAbstraction/fusion_best.pt
+[2026-06-20 23:03:37] INFO epoch=3 train_loss=0.0395 val_loss=0.0442 val_mcc=0.8426 val_f1=0.8745 threshold=0.60
+[2026-06-20 23:03:42] INFO Saved best checkpoint epoch=3 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/MultifacetedAbstraction/fusion_best.pt
+[2026-06-20 23:12:47] INFO epoch=4 train_loss=0.0200 val_loss=0.0577 val_mcc=0.8499 val_f1=0.8803 threshold=0.73
+[2026-06-20 23:12:51] INFO Saved best checkpoint epoch=4 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/MultifacetedAbstraction/fusion_best.pt
+[2026-06-20 23:21:56] INFO epoch=5 train_loss=0.0105 val_loss=0.0626 val_mcc=0.8506 val_f1=0.8806 threshold=0.54
+[2026-06-20 23:22:00] INFO Saved best checkpoint epoch=5 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/MultifacetedAbstraction/fusion_best.pt
+[2026-06-20 23:31:03] INFO epoch=6 train_loss=0.0078 val_loss=0.0859 val_mcc=0.8660 val_f1=0.8924 threshold=0.50
+[2026-06-20 23:31:07] INFO Saved best checkpoint epoch=6 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/MultifacetedAbstraction/fusion_best.pt
+[2026-06-20 23:40:12] INFO epoch=7 train_loss=0.0036 val_loss=0.0956 val_mcc=0.8631 val_f1=0.8906 threshold=0.38
+[2026-06-20 23:40:48] INFO test_loss=0.1252 threshold=0.50 test_metrics={'accuracy': 0.9355345911949685, 'precision': 0.8307692307692308, 'recall': 0.8503937007874016, 'f1': 0.8404669260700389, 'mcc': 0.8001653523121293, 'pr_auc': 0.902210893213762, 'roc_auc': 0.975341490958031}
+[2026-06-20 23:40:48] INFO Result appended to: /home/opesai/Downloads/CodeSmells/results/results.csv
+[2026-06-20 23:40:48] INFO Model run finished successfully.

@@ -1,0 +1,14 @@
+[2026-06-20 08:36:06] INFO Prepare start language=java smell=FeatureEnvy models=['unixcoder', 'ast_gat', 'fusion'] dev=False
+[2026-06-20 08:36:06] INFO Prepare artifacts requested_positive=2000 requested_negative=8000
+[2026-06-20 08:36:06] INFO Use archive only (ignore extensionless _1/_2 files): /home/opesai/Downloads/CodeSmells/data/training_data_java/FeatureEnvy.7z
+[2026-06-20 08:36:06] INFO Index archive: /home/opesai/Downloads/CodeSmells/data/training_data_java/FeatureEnvy.7z
+[2026-06-20 08:36:23] INFO Wrote dataset_index rows=319498 positives=3429 negatives=316069 repos=2 class_parse={'unparsed': 318028, 'parsed': 1470}
+[2026-06-20 08:36:26] INFO Sampled data requested_pos=2000 requested_neg=8000 available_pos=3429 available_neg=316069 selected_pos=2000 selected_neg=8000 repos=2
+[2026-06-20 08:36:26] INFO Wrote splits train=7000 val=1500 test=1500 protocol=70/15/15 stratified by label (repo-aware exact split unavailable)
+[2026-06-20 08:36:27] INFO Extract sampled sources archive=/home/opesai/Downloads/CodeSmells/data/training_data_java/FeatureEnvy.7z targets=10000
+[2026-06-20 08:38:11] INFO Wrote sampled source cache valid=10000 missing=0 audit=/home/opesai/Downloads/CodeSmells/artifacts/java/FeatureEnvy/source_extract_audit.csv
+[2026-06-20 08:38:12] INFO Start tokenization cache and token length audit.
+[2026-06-20 08:40:14] INFO Wrote token cache/stats rows=10000 max_token_length=102833 truncated=4642 file=/home/opesai/Downloads/CodeSmells/artifacts/java/FeatureEnvy/token_stats.csv
+[2026-06-20 08:40:14] INFO Start AST parse and graph cache.
+[2026-06-20 08:42:46] INFO Wrote AST graphs rows=10000 status_counts={'ok': 10000} file=/home/opesai/Downloads/CodeSmells/artifacts/java/FeatureEnvy/ast_parse_result.csv
+[2026-06-20 08:42:46] INFO Artifacts ready in: /home/opesai/Downloads/CodeSmells/artifacts/java/FeatureEnvy

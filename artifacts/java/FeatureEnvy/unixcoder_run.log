@@ -1,0 +1,35 @@
+[2026-06-20 08:42:46] INFO Model run start language=java smell=FeatureEnvy model=unixcoder dev=False
+[2026-06-20 08:42:46] INFO Start train/eval/test.
+[2026-06-20 08:42:55] INFO Dataset sizes train=7000 val=1500 test=1500
+[2026-06-20 08:42:57] INFO Linear LR schedule total_steps=26250 warmup_steps=2625
+[2026-06-20 09:04:29] INFO epoch=1 train_loss=0.1803 val_loss=0.1534 val_mcc=0.4879 val_f1=0.5976 threshold=0.68
+[2026-06-20 09:04:30] INFO Saved best checkpoint epoch=1 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/FeatureEnvy/unixcoder_best.pt
+[2026-06-20 09:26:01] INFO epoch=2 train_loss=0.1017 val_loss=0.1540 val_mcc=0.6552 val_f1=0.7270 threshold=0.79
+[2026-06-20 09:26:05] INFO Saved best checkpoint epoch=2 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/FeatureEnvy/unixcoder_best.pt
+[2026-06-20 09:47:37] INFO epoch=3 train_loss=0.0676 val_loss=0.2078 val_mcc=0.6522 val_f1=0.7210 threshold=0.85
+[2026-06-20 10:09:10] INFO epoch=4 train_loss=0.0538 val_loss=0.1245 val_mcc=0.6728 val_f1=0.7407 threshold=0.74
+[2026-06-20 10:09:15] INFO Saved best checkpoint epoch=4 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/FeatureEnvy/unixcoder_best.pt
+[2026-06-20 10:30:46] INFO epoch=5 train_loss=0.0308 val_loss=0.1561 val_mcc=0.6679 val_f1=0.7365 threshold=0.59
+[2026-06-20 10:52:16] INFO epoch=6 train_loss=0.0208 val_loss=0.2564 val_mcc=0.6813 val_f1=0.7473 threshold=0.26
+[2026-06-20 10:52:21] INFO Saved best checkpoint epoch=6 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/FeatureEnvy/unixcoder_best.pt
+[2026-06-20 11:13:52] INFO epoch=7 train_loss=0.0150 val_loss=0.2759 val_mcc=0.6753 val_f1=0.7427 threshold=0.38
+[2026-06-20 11:35:24] INFO epoch=8 train_loss=0.0124 val_loss=0.2772 val_mcc=0.6657 val_f1=0.7327 threshold=0.28
+[2026-06-20 11:56:57] INFO epoch=9 train_loss=0.0091 val_loss=0.3506 val_mcc=0.6823 val_f1=0.7481 threshold=0.33
+[2026-06-20 11:57:01] INFO Saved best checkpoint epoch=9 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/FeatureEnvy/unixcoder_best.pt
+[2026-06-20 12:18:33] INFO epoch=10 train_loss=0.0077 val_loss=0.4095 val_mcc=0.6857 val_f1=0.7508 threshold=0.20
+[2026-06-20 12:18:38] INFO Saved best checkpoint epoch=10 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/FeatureEnvy/unixcoder_best.pt
+[2026-06-20 12:40:09] INFO epoch=11 train_loss=0.0063 val_loss=0.1378 val_mcc=0.6936 val_f1=0.7570 threshold=0.39
+[2026-06-20 12:40:14] INFO Saved best checkpoint epoch=11 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/FeatureEnvy/unixcoder_best.pt
+[2026-06-20 13:01:46] INFO epoch=12 train_loss=0.0037 val_loss=0.4070 val_mcc=0.6886 val_f1=0.7531 threshold=0.15
+[2026-06-20 13:23:17] INFO epoch=13 train_loss=0.0044 val_loss=0.4175 val_mcc=0.6843 val_f1=0.7496 threshold=0.13
+[2026-06-20 13:44:47] INFO epoch=14 train_loss=0.0027 val_loss=0.3344 val_mcc=0.6950 val_f1=0.7581 threshold=0.25
+[2026-06-20 13:44:52] INFO Saved best checkpoint epoch=14 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/FeatureEnvy/unixcoder_best.pt
+[2026-06-20 14:06:23] INFO epoch=15 train_loss=0.0017 val_loss=0.4486 val_mcc=0.6868 val_f1=0.7511 threshold=0.16
+[2026-06-20 14:27:54] INFO epoch=16 train_loss=0.0036 val_loss=0.3714 val_mcc=0.6708 val_f1=0.7391 threshold=0.49
+[2026-06-20 14:49:25] INFO epoch=17 train_loss=0.0023 val_loss=0.5331 val_mcc=0.6737 val_f1=0.7413 threshold=0.05
+[2026-06-20 15:10:56] INFO epoch=18 train_loss=0.0014 val_loss=0.6093 val_mcc=0.6703 val_f1=0.7388 threshold=0.05
+[2026-06-20 15:32:28] INFO epoch=19 train_loss=0.0007 val_loss=0.7930 val_mcc=0.6533 val_f1=0.7224 threshold=0.11
+[2026-06-20 15:32:28] INFO Early stopping at epoch 19. Best epoch: 14
+[2026-06-20 15:33:50] INFO test_loss=0.2971 threshold=0.25 test_metrics={'accuracy': 0.8946666666666667, 'precision': 0.7028571428571428, 'recall': 0.82, 'f1': 0.7569230769230769, 'mcc': 0.6935371574904086, 'pr_auc': 0.8397323970256383, 'roc_auc': 0.9546749999999999}
+[2026-06-20 15:33:50] INFO Result appended to: /home/opesai/Downloads/CodeSmells/results/results.csv
+[2026-06-20 15:33:50] INFO Model run finished successfully.

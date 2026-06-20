@@ -1,0 +1,17 @@
+{
+  "edge_types": {
+    "child_to_parent": 1,
+    "control_flow_hint": 5,
+    "member_receiver": 6,
+    "next_sibling": 2,
+    "parent_to_child": 0,
+    "prev_sibling": 3,
+    "same_identifier": 4
+  },
+  "language": "java",
+  "max_ast_nodes": 512,
+  "max_same_identifier_occurrences": 10,
+  "min_same_identifier_length": 3,
+  "node_type_hash_buckets": 128,
+  "schema_version": 2
+}

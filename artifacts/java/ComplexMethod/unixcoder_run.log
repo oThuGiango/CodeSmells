@@ -1,0 +1,28 @@
+[2026-06-19 17:25:37] INFO Model run start language=java smell=ComplexMethod model=unixcoder dev=False
+[2026-06-19 17:25:37] INFO Start train/eval/test.
+[2026-06-19 17:25:45] INFO Dataset sizes train=7000 val=1500 test=1500
+[2026-06-19 17:25:47] INFO Linear LR schedule total_steps=26250 warmup_steps=2625
+[2026-06-19 17:45:47] INFO epoch=1 train_loss=0.1243 val_loss=0.0635 val_mcc=0.8650 val_f1=0.8921 threshold=0.74
+[2026-06-19 17:45:48] INFO Saved best checkpoint epoch=1 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/ComplexMethod/unixcoder_best.pt
+[2026-06-19 18:05:46] INFO epoch=2 train_loss=0.0218 val_loss=0.0425 val_mcc=0.9243 val_f1=0.9390 threshold=0.95
+[2026-06-19 18:05:50] INFO Saved best checkpoint epoch=2 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/ComplexMethod/unixcoder_best.pt
+[2026-06-19 18:25:46] INFO epoch=3 train_loss=0.0139 val_loss=0.0337 val_mcc=0.9352 val_f1=0.9481 threshold=0.92
+[2026-06-19 18:25:50] INFO Saved best checkpoint epoch=3 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/ComplexMethod/unixcoder_best.pt
+[2026-06-19 18:45:37] INFO epoch=4 train_loss=0.0112 val_loss=0.0225 val_mcc=0.9670 val_f1=0.9736 threshold=0.86
+[2026-06-19 18:45:42] INFO Saved best checkpoint epoch=4 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/ComplexMethod/unixcoder_best.pt
+[2026-06-19 19:05:31] INFO epoch=5 train_loss=0.0061 val_loss=0.0219 val_mcc=0.9624 val_f1=0.9699 threshold=0.79
+[2026-06-19 19:25:25] INFO epoch=6 train_loss=0.0074 val_loss=0.0110 val_mcc=0.9686 val_f1=0.9748 threshold=0.67
+[2026-06-19 19:25:29] INFO Saved best checkpoint epoch=6 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/ComplexMethod/unixcoder_best.pt
+[2026-06-19 19:45:41] INFO epoch=7 train_loss=0.0026 val_loss=0.0187 val_mcc=0.9693 val_f1=0.9754 threshold=0.41
+[2026-06-19 19:45:46] INFO Saved best checkpoint epoch=7 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/ComplexMethod/unixcoder_best.pt
+[2026-06-19 20:05:53] INFO epoch=8 train_loss=0.0029 val_loss=0.0213 val_mcc=0.9733 val_f1=0.9786 threshold=0.62
+[2026-06-19 20:05:57] INFO Saved best checkpoint epoch=8 path=/home/opesai/Downloads/CodeSmells/checkpoints/java/ComplexMethod/unixcoder_best.pt
+[2026-06-19 20:25:57] INFO epoch=9 train_loss=0.0041 val_loss=0.0165 val_mcc=0.9666 val_f1=0.9732 threshold=0.62
+[2026-06-19 20:45:43] INFO epoch=10 train_loss=0.0016 val_loss=0.0436 val_mcc=0.9504 val_f1=0.9604 threshold=0.91
+[2026-06-19 21:05:33] INFO epoch=11 train_loss=0.0015 val_loss=0.0247 val_mcc=0.9649 val_f1=0.9719 threshold=0.54
+[2026-06-19 21:25:29] INFO epoch=12 train_loss=0.0001 val_loss=0.0533 val_mcc=0.9671 val_f1=0.9737 threshold=0.07
+[2026-06-19 21:45:17] INFO epoch=13 train_loss=0.0024 val_loss=0.0315 val_mcc=0.9665 val_f1=0.9727 threshold=0.93
+[2026-06-19 21:45:17] INFO Early stopping at epoch 13. Best epoch: 8
+[2026-06-19 21:46:21] INFO test_loss=0.0230 threshold=0.62 test_metrics={'accuracy': 0.99, 'precision': 0.9797979797979798, 'recall': 0.97, 'f1': 0.9748743718592965, 'mcc': 0.9686514332480386, 'pr_auc': 0.9944369741624841, 'roc_auc': 0.9988305555555556}
+[2026-06-19 21:46:21] INFO Result appended to: /home/opesai/Downloads/CodeSmells/results/results.csv
+[2026-06-19 21:46:21] INFO Model run finished successfully.
